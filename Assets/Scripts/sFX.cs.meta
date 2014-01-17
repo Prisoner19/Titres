@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 949d766e3f6db264883e6cb6da234000
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - combo2FX: {instanceID: 0}
+  - combo3FX: {instanceID: 0}
+  - combo4FX: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
