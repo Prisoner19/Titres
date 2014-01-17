@@ -15,6 +15,6 @@ public class sOptions : MonoBehaviour {
 	}
 
 	void OnMouseDown(){
-		Debug.Log ("A opciones!");
+		Application.LoadLevel("Opciones");
 	}
 }

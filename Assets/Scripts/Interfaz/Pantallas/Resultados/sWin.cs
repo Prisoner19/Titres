@@ -18,7 +18,12 @@ public class sWin : MonoBehaviour {
 			}
 		}
 		else{
-			centavos = Instantiate(Resources.Load("Prefabs/HUD/SNN"), new Vector3(-5,0,-1), transform.rotation) as GameObject;
+			if(sControlSupremo.getInstancia.metas[sControl.getInstancia.nivel-1,2]){
+				centavos = Instantiate(Resources.Load("Prefabs/HUD/SNS"), new Vector3(-5,0,-1), transform.rotation) as GameObject;
+			}
+			else{
+				centavos = Instantiate(Resources.Load("Prefabs/HUD/SNN"), new Vector3(-5,0,-1), transform.rotation) as GameObject;
+			}
 		}
 
 		centavos.transform.parent = transform;

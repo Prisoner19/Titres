@@ -6,6 +6,8 @@ public class sControlSupremo : MonoBehaviour {
 	public bool[] niveles;
 	public bool[,] metas;
 	public static sControlSupremo instancia;
+	public bool playMusic;
+	public bool playFX;
 
 	// Use this for initialization
 	void Start () {
@@ -19,6 +21,9 @@ public class sControlSupremo : MonoBehaviour {
 				metas[i,j] = false;
 			}
 		}
+
+		playFX = true;
+		playMusic = true;
 
 		niveles[0] = true;
 		DontDestroyOnLoad(gameObject);

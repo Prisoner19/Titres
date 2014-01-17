@@ -57,8 +57,10 @@ public class sControl : MonoBehaviour {
 					case 3: score+=100; break;
 					case 4: score+=200; break;
 				}
-				efectos.efectoCombo(combos);
-				Debug.Log(combos);
+				if(sControlSupremo.getInstancia.playFX == true){
+					efectos.efectoCombo(combos);
+				}
+				//Debug.Log(combos);
 			}
 
 			if(timer>=0){
@@ -71,11 +73,14 @@ public class sControl : MonoBehaviour {
 				sControlSupremo.getInstancia.niveles[sControl.getInstancia.nivel] = true;
 				win = true;
 				sControlSupremo.getInstancia.metas[nivel-1,0] = true;
-				if(score>=scoreMeta)
-					sControlSupremo.getInstancia.metas[nivel-1,2] = true;
 
-				if(tiempoMeta>=tiempoInicial-timer)
+				if(score>=scoreMeta){
+					sControlSupremo.getInstancia.metas[nivel-1,2] = true;
+				}
+
+				if(tiempoMeta>=tiempoInicial-timer){
 					sControlSupremo.getInstancia.metas[nivel-1,1] = true;
+				}
 
 				terminarEscena();
 			}
@@ -121,9 +126,10 @@ public class sControl : MonoBehaviour {
 
 	public void verificarLinea(int linea){
 		Transform row = GameObject.Find("Linea"+linea).transform;
-		
+
+		Debug.Log("Linea "+linea+" / "+row.childCount);
+
 		if(row.childCount == 12){
-			Debug.Log("Linea "+linea+" llena");
 			destruirLinea(row);
 			actualizarLineas(linea);
 			score += 100;
