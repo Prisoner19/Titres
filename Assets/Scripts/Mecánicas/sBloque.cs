@@ -3,7 +3,7 @@ using System.Collections;
 
 public class sBloque : MonoBehaviour {
 
-	public sFigura figuraPadre;
+	public sMovimiento figuraPadre;
 	public Sprite spriteMadera;
 	public Sprite spriteMetal;
 	public int tipo;

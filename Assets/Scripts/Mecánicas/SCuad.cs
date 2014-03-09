@@ -3,12 +3,12 @@ using System.Collections;
 
 public class SCuad : MonoBehaviour {
 
-	public sFigura figura;
+	public sMovimiento sMov;
 
 	// Use this for initialization
 	void Start () {
 		GameObject go = GameObject.FindGameObjectWithTag("Figura");
-		figura = (sFigura) go.GetComponent(typeof(sFigura));
+		sMov = (sMovimiento) go.GetComponent(typeof(sMovimiento));
 	}
 	
 	// Update is called once per frame
@@ -17,23 +17,22 @@ public class SCuad : MonoBehaviour {
 	}
 
 	void OnMouseDown(){
-		if(figura.bloqueActivo != null){
+		if(sMov.bloqueActivo != null){
 			moverBloque();
 		}
 	}
 
 	void moverBloque(){
 
-		Vector3 posOriginal = figura.bloqueActivo.transform.position;
+		Vector3 posOriginal = sMov.bloqueActivo.transform.position;
 		Vector3 posNueva = transform.position;
 		
 		posNueva.z = posOriginal.z;
 		
-		figura.bloqueActivo.transform.position = posNueva;
-		figura.bloqueActivo.transform.localScale -= new Vector3(0.2f,0.2f,0);
-		figura.bloqueActivo = null;
-		figura.Cuadricular();
-		figura.mostrarCuadricula();
-		figura.actualizarPosicionClon();
+		sMov.bloqueActivo.transform.position = posNueva;
+		sMov.bloqueActivo.transform.localScale -= new Vector3(0.2f,0.2f,0);
+		sMov.bloqueActivo = null;
+		sMov.Cuadricular();
+		sMov.mostrarCuadricula();
 	}
 }
