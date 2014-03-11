@@ -129,7 +129,7 @@ public class sControl : MonoBehaviour {
 
 		Debug.Log("Linea "+linea+" / "+row.childCount);
 
-		if(row.childCount == 12){
+		if(row.childCount == 10){
 			destruirLinea(row);
 			actualizarLineas(linea);
 			score += 100;

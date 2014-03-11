@@ -10,10 +10,11 @@ public class sMovimiento : MonoBehaviour {
 	private bool yaMovio;
 	private Vector3 posInicioCuad;
 
+	private float intervaloCaida;
+
 	public int fase;
 	private const int ARMADO = 0;
 	private const int ACOPLADO = 1;
-
 
 	public int estado;
 
@@ -27,6 +28,8 @@ public class sMovimiento : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+
+		intervaloCaida = 0.25f;
 
 		fase = ARMADO;
 		estado = CAYENDO;
@@ -55,6 +58,7 @@ public class sMovimiento : MonoBehaviour {
 			else{
 				puedeCaer = true;
 				puedeMover = true;
+				desacelerarCaida();
 				estado = CAYENDO;
 				deseleccionarBloque();
 				ocultarCuadricula();
@@ -71,7 +75,7 @@ public class sMovimiento : MonoBehaviour {
 		if(estado != ASENTADO && estado != CONGELADO){
 			if(puedeCaer == true){
 				caer();
-				StartCoroutine("esperarCaer", 0.25f);
+				StartCoroutine("esperarCaer", intervaloCaida);
 			}
 			
 			if(Input.GetKey("a")){
@@ -86,7 +90,24 @@ public class sMovimiento : MonoBehaviour {
 					StartCoroutine("esperarMover",0.1f);
 				}
 			}
+
+			if(Input.GetKeyDown("s")){
+				acelerarCaida();
+			}
+			else if(Input.GetKeyUp("s")){
+				desacelerarCaida();
+			}
 		}
+	}
+
+	void acelerarCaida ()
+	{
+		intervaloCaida = 0.025f;
+	}
+
+	void desacelerarCaida ()
+	{
+		intervaloCaida = 0.25f;
 	}
 
 	void detenerCaida(){
