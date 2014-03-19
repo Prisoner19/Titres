@@ -34,5 +34,6 @@ public class SCuad : MonoBehaviour {
 		sMov.bloqueActivo = null;
 		sMov.Cuadricular();
 		sMov.mostrarCuadricula();
+		sMov.actualizarGuia();
 	}
 }

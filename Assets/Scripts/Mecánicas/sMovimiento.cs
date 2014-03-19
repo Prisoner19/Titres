@@ -12,10 +12,6 @@ public class sMovimiento : MonoBehaviour {
 
 	private float intervaloCaida;
 
-	public int fase;
-	private const int ARMADO = 0;
-	private const int ACOPLADO = 1;
-
 	public int estado;
 
 	private const int CONGELADO = 0;
@@ -24,6 +20,8 @@ public class sMovimiento : MonoBehaviour {
 	private const int ASENTADO = 3;
 
 	private GameObject cuadricula;
+	private GameObject guia;
+
 	public sBloque bloqueActivo;
 	
 	// Use this for initialization
@@ -31,7 +29,6 @@ public class sMovimiento : MonoBehaviour {
 
 		intervaloCaida = 0.25f;
 
-		fase = ARMADO;
 		estado = CAYENDO;
 
 		puedeMover = true;
@@ -42,14 +39,19 @@ public class sMovimiento : MonoBehaviour {
 		posInicioCuad = new Vector3(0.25f,6.25f,-1);
 		cuadricula = null;
 		Cuadricular();
+
+		guia = null;
+		crearGuia();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
+		//Debug.Log(puedeMover + " / " + estado + " / "+ yaMovio);
+
 		cuadricula.transform.position = transform.position - posInicioCuad;
 		
-		if(fase == ARMADO && Input.GetButtonDown("Jump")){
+		if(Input.GetButtonDown("Jump")){
 			if(estado != CONGELADO){
 				detenerLados();
 				detenerCaida();
@@ -58,6 +60,7 @@ public class sMovimiento : MonoBehaviour {
 			else{
 				puedeCaer = true;
 				puedeMover = true;
+				yaMovio = false;
 				desacelerarCaida();
 				estado = CAYENDO;
 				deseleccionarBloque();
@@ -65,12 +68,6 @@ public class sMovimiento : MonoBehaviour {
 			}
 		}
 
-		if(fase == ACOPLADO && estado == CONGELADO){
-			fase = ARMADO;
-		}
-		else if(transform.position.y < GameObject.Find("Limite").transform.position.y && estado != CONGELADO){
-			fase = ACOPLADO;
-		}
 
 		if(estado != ASENTADO && estado != CONGELADO){
 			if(puedeCaer == true){
@@ -177,6 +174,7 @@ public class sMovimiento : MonoBehaviour {
 			pos.x -= 0.5f;
 			transform.position = pos;
 			yaMovio = true;
+			actualizarGuia();
 		}
 	}
 	
@@ -187,6 +185,7 @@ public class sMovimiento : MonoBehaviour {
 			pos.x += 0.5f;
 			transform.position = pos;
 			yaMovio = true;
+			actualizarGuia();
 		}
 	}
 	
@@ -203,7 +202,7 @@ public class sMovimiento : MonoBehaviour {
 	}
 
 	IEnumerator esperarAsentar(){
-		yield return new WaitForSeconds(0.5f);
+		yield return new WaitForSeconds(0.2f);
 		if(verificarOcupado("Abajo") == true)
 			asentar();
 	}
@@ -212,6 +211,7 @@ public class sMovimiento : MonoBehaviour {
 	{
 		estado = ASENTADO;
 		removerHijos();
+		Destroy(guia);
 		Destroy(this.gameObject);
 		sControl.getInstancia.finalSentado = true;
 	}
@@ -297,5 +297,82 @@ public class sMovimiento : MonoBehaviour {
 			bloqueActivo.transform.localScale -= new Vector3(0.2f,0.2f,0);
 			bloqueActivo = null;
 		}
+	}
+
+	void crearGuia()
+	{
+		guia = new GameObject("Guia");
+
+		for(int i=0; i<transform.childCount; i++)
+		{
+			GameObject hijoGuia = Instantiate(Resources.Load("Prefabs/BGuia"), transform.position, transform.rotation) as GameObject;
+			hijoGuia.name = "BGuia";
+			hijoGuia.transform.parent = guia.transform;
+		}
+
+		actualizarGuia();
+	}
+
+	public void actualizarGuia()
+	{
+		Vector3 posHijo;
+		Vector3 posNueva;
+		float posY;
+
+		posY = calcularPosicionGuias();
+
+		Debug.Log(posY);
+		if(posY != Mathf.NegativeInfinity)
+		{
+			for(int i=0; i<transform.childCount; i++)
+			{
+				posHijo = transform.GetChild(i).transform.position;
+				posNueva = new Vector3(posHijo.x, posY,posHijo.z + 1);
+
+				guia.transform.GetChild(i).position = posNueva;
+			}
+		}
+	}
+
+	public float calcularPosicionGuias()
+	{
+		int alturaMax = 0;
+		int valorAltura;
+
+		for(int i=0; i<transform.childCount; i++)
+		{
+			valorAltura = calcularAlturaBloqueGuia(transform.GetChild(i).position);
+			if(valorAltura == -1)
+			{
+				return Mathf.NegativeInfinity;
+			}
+			if(valorAltura > alturaMax)
+			{
+				alturaMax = valorAltura;
+			}
+		}
+
+		return (alturaMax * 1.0f)/2 - 4.75f;
+	}
+
+	public int calcularAlturaBloqueGuia(Vector3 posBloque)
+	{
+		int linea = Mathf.FloorToInt((posBloque.y + 4.75f)*2);
+		int columna = Mathf.FloorToInt((posBloque.x + 2.25f)*2);
+		int posY = -1;
+
+		for(int i=0; i<20; i++)
+		{
+			if(sControl.getInstancia.matrizOcupados[i,columna] == false)
+			{
+				if(i-1 < 0 || sControl.getInstancia.matrizOcupados[i-1,columna] == true)
+				{
+					posY = i;
+				}
+			}
+		}
+
+		//Debug.Log(indice+ " / " + columna);
+		return posY;
 	}
 }

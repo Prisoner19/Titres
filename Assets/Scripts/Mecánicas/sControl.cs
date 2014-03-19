@@ -7,6 +7,7 @@ public class sControl : MonoBehaviour {
 	public sFX efectos;
 	public bool activo;
 	public GameObject[] lineas;
+	public bool [,] matrizOcupados;
 	public bool finalSentado;
 	public int numBloques;
 
@@ -28,8 +29,9 @@ public class sControl : MonoBehaviour {
 	void Awake(){
 
 		instancia = this;
-		lineas = new GameObject[12];
-		for(int i=0; i<12;i++){
+		lineas = new GameObject[20];
+		matrizOcupados = new bool[20,10];
+		for(int i=0; i<20;i++){
 			lineas[i] = new GameObject("Linea"+i);
 			lineas[i].transform.parent = GameObject.Find("Base").transform;
 		}
@@ -48,7 +50,7 @@ public class sControl : MonoBehaviour {
 		if(activo){
 			if(finalSentado){
 				combos=0;
-				for(int i=11; i>=0; i--){
+				for(int i=19; i>=0; i--){
 					verificarLinea(i);
 				}
 				crearFigura();
@@ -127,7 +129,7 @@ public class sControl : MonoBehaviour {
 	public void verificarLinea(int linea){
 		Transform row = GameObject.Find("Linea"+linea).transform;
 
-		Debug.Log("Linea "+linea+" / "+row.childCount);
+		//Debug.Log("Linea "+linea+" / "+row.childCount);
 
 		if(row.childCount == 10){
 			destruirLinea(row);
@@ -149,7 +151,7 @@ public class sControl : MonoBehaviour {
 		Transform lineaArriba;
 		Transform bloqueArriba;
 		if(linea!=11){
-			for(int posLinea = linea; posLinea < 11; posLinea++){
+			for(int posLinea = linea; posLinea < 19; posLinea++){
 				lineaArriba = GameObject.Find("Linea"+(posLinea+1)).transform;
 				for(int i=lineaArriba.childCount-1; i>=0; i--){
 					bloqueArriba = lineaArriba.GetChild(i);
