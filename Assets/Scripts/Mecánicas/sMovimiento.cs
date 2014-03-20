@@ -23,6 +23,8 @@ public class sMovimiento : MonoBehaviour {
 	private GameObject guia;
 
 	public sBloque bloqueActivo;
+	private Vector3 posLocalBloqueGuia;
+	private Vector3 posGlobalBloqueGuia;
 	
 	// Use this for initialization
 	void Start () {
@@ -316,18 +318,21 @@ public class sMovimiento : MonoBehaviour {
 	public void actualizarGuia()
 	{
 		Vector3 posHijo;
+		Vector3 posLocalHijo;
 		Vector3 posNueva;
 		float posY;
 
 		posY = calcularPosicionGuias();
 
-		Debug.Log(posY);
+		//Debug.Log(posY);
 		if(posY != Mathf.NegativeInfinity)
 		{
 			for(int i=0; i<transform.childCount; i++)
 			{
-				posHijo = transform.GetChild(i).transform.position;
-				posNueva = new Vector3(posHijo.x, posY,posHijo.z + 1);
+				posHijo = transform.GetChild(i).position;
+				posLocalHijo = transform.GetChild(i).localPosition;
+
+				posNueva = posGlobalBloqueGuia + posLocalHijo - posLocalBloqueGuia;
 
 				guia.transform.GetChild(i).position = posNueva;
 			}
@@ -338,20 +343,42 @@ public class sMovimiento : MonoBehaviour {
 	{
 		int alturaMax = 0;
 		int valorAltura;
+		Vector3 posHijo;
+
+		float posYMinHijo = Mathf.Infinity;
+		float posYHijo;
 
 		for(int i=0; i<transform.childCount; i++)
 		{
-			valorAltura = calcularAlturaBloqueGuia(transform.GetChild(i).position);
+			posHijo = transform.GetChild(i).position;
+			posYHijo = posHijo.y;
+			valorAltura = calcularAlturaBloqueGuia(posHijo);
+
 			if(valorAltura == -1)
 			{
 				return Mathf.NegativeInfinity;
 			}
+
 			if(valorAltura > alturaMax)
 			{
 				alturaMax = valorAltura;
+				posLocalBloqueGuia = transform.GetChild(i).localPosition;
+				posGlobalBloqueGuia = new Vector3(posHijo.x, (alturaMax * 1.0f)/2 - 4.75f, posHijo.z);
+//				Debug.Log(posLocalBloqueGuia + " /// " + posGlobalBloqueGuia);
+			}
+			else if(valorAltura == alturaMax)
+			{
+				if(posYHijo < posYMinHijo)
+				{
+					posYMinHijo = posYHijo;
+					alturaMax = valorAltura;
+					posLocalBloqueGuia = transform.GetChild(i).localPosition;
+					posGlobalBloqueGuia = new Vector3(posHijo.x, (alturaMax * 1.0f)/2 - 4.75f, posHijo.z);
+				}
 			}
 		}
 
+		//Debug.Log((alturaMax * 1.0f)/2 - 4.75f);
 		return (alturaMax * 1.0f)/2 - 4.75f;
 	}
 
@@ -372,7 +399,7 @@ public class sMovimiento : MonoBehaviour {
 			}
 		}
 
-		//Debug.Log(indice+ " / " + columna);
+		//Debug.Log(posY+ " / " + columna);
 		return posY;
 	}
 }
