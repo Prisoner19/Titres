@@ -92,6 +92,7 @@ public class sMovimiento : MonoBehaviour {
 
 			if(Input.GetKeyDown("s")){
 				acelerarCaida();
+				//transform.position = guia.transform.position;
 			}
 			else if(Input.GetKeyUp("s")){
 				desacelerarCaida();
@@ -147,7 +148,6 @@ public class sMovimiento : MonoBehaviour {
 			
 			if(objeto.collider != null){
 				if(objeto.collider.gameObject.tag != "Bloque"){
-					Debug.Log("detectado " + objeto.collider.gameObject.name);
 					return true;
 				}
 			}
@@ -213,6 +213,7 @@ public class sMovimiento : MonoBehaviour {
 	{
 		estado = ASENTADO;
 		removerHijos();
+		Destroy(cuadricula);
 		Destroy(guia);
 		Destroy(this.gameObject);
 		sControl.getInstancia.finalSentado = true;
@@ -325,6 +326,7 @@ public class sMovimiento : MonoBehaviour {
 		posY = calcularPosicionGuias();
 
 		//Debug.Log(posY);
+		Debug.Log(posGlobalBloqueGuia.ToString("F2"));
 		if(posY != Mathf.NegativeInfinity)
 		{
 			for(int i=0; i<transform.childCount; i++)
@@ -387,8 +389,18 @@ public class sMovimiento : MonoBehaviour {
 		int linea = Mathf.FloorToInt((posBloque.y + 4.75f)*2);
 		int columna = Mathf.FloorToInt((posBloque.x + 2.25f)*2);
 		int posY = -1;
+		int max;
 
-		for(int i=0; i<20; i++)
+		if(linea > 20)
+		{
+			max = 20;
+		}
+		else
+		{
+			max = linea;
+		}
+
+		for(int i=0; i<max; i++)
 		{
 			if(sControl.getInstancia.matrizOcupados[i,columna] == false)
 			{

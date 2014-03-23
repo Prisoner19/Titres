@@ -150,15 +150,24 @@ public class sControl : MonoBehaviour {
 		Vector3 posNueva;
 		Transform lineaArriba;
 		Transform bloqueArriba;
-		if(linea!=11){
+		if(linea!=19){
 			for(int posLinea = linea; posLinea < 19; posLinea++){
 				lineaArriba = GameObject.Find("Linea"+(posLinea+1)).transform;
+				Debug.Log(lineaArriba.childCount);
 				for(int i=lineaArriba.childCount-1; i>=0; i--){
 					bloqueArriba = lineaArriba.GetChild(i);
 					posNueva = bloqueArriba.position;
 					posNueva.y -= 0.5f;
 					bloqueArriba.position = posNueva;
 					bloqueArriba.parent = GameObject.Find("Linea"+(posLinea)).transform;
+				}
+			}
+
+			for(int posLinea = linea; posLinea < 19; posLinea++)
+			{
+				for(int i=9; i>=0; i--)
+				{
+					matrizOcupados[posLinea,i] = matrizOcupados[posLinea+1, i];
 				}
 			}
 		}
