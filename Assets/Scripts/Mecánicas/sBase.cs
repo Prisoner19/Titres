@@ -5,10 +5,13 @@ public class sBase : MonoBehaviour {
 	
 	private int linea;
 	private int columna;
+	private int tipo;
+	public Sprite spriteMetal;
+	private SpriteRenderer rend;
 
 	void Awake()
 	{
-
+		rend = GetComponent("SpriteRenderer") as SpriteRenderer;
 	}
 
 	// Use this for initialization
@@ -19,10 +22,11 @@ public class sBase : MonoBehaviour {
 		linea = Mathf.FloorToInt((transform.position.y + 4.75f)*2);
 		columna = Mathf.FloorToInt((transform.position.x + 2.25f)*2);
 		sControl.getInstancia.matrizOcupados[linea,columna] = true;
+
 		if(linea<20)
+		{
 			transform.parent = sControl.getInstancia.lineas[linea].transform;
-		sControl.getInstancia.numBloques--;
-		//sControl.getInstancia.verificarLinea(linea);
+		}
 	}
 	
 	// Update is called once per frame
@@ -31,5 +35,10 @@ public class sBase : MonoBehaviour {
 			sControl.getInstancia.terminarEscena();
 			Destroy(transform.gameObject);
 		}
+	}
+
+	public void metalear()
+	{
+		rend.sprite = spriteMetal;
 	}
 }

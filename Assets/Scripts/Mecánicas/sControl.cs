@@ -9,7 +9,6 @@ public class sControl : MonoBehaviour {
 	public GameObject[] lineas;
 	public bool [,] matrizOcupados;
 	public bool finalSentado;
-	public int numBloques;
 
 	public int nivel;
 
@@ -39,12 +38,16 @@ public class sControl : MonoBehaviour {
 
 	void Start () {
 		win = false;
-		activo = true;
-		crearFigura();
 		score = 0;
 		tiempoInicial = timer;
 	}
-	
+
+	public void iniciar()
+	{
+		activo = true;
+		crearFigura();
+	}
+
 	// Update is called once per frame
 	void Update () {
 		if(activo){
@@ -119,11 +122,22 @@ public class sControl : MonoBehaviour {
 
 	public void crearFigura(){
 		
-		Vector3 posInicio = new Vector3(0.25f,6.25f,0);
+		Vector3 posInicio = new Vector3(0.25f,6.25f,-2);
 		
-		int rand_fig = UnityEngine.Random.Range (1,6);
-		GameObject figura = Instantiate(Resources.Load("Prefabs/Figura"+rand_fig), posInicio, transform.rotation) as GameObject;
-		figura.name = "Figura"+rand_fig;
+		int rand_fig;
+
+		if(nivel > 1)
+		{
+			rand_fig = UnityEngine.Random.Range (1,6);
+			GameObject figura = Instantiate(Resources.Load("Prefabs/Figura"+rand_fig), posInicio, transform.rotation) as GameObject;
+			figura.name = "Figura"+rand_fig;
+		}
+		else
+		{
+			rand_fig = UnityEngine.Random.Range (0,4);
+			GameObject figura = Instantiate(Resources.Load("Prefabs/FiguraTut"+rand_fig), posInicio, transform.rotation) as GameObject;
+			figura.name = "Figura"+rand_fig;
+		}
 	}
 
 	public void verificarLinea(int linea){

@@ -9,8 +9,10 @@ public class sMovimiento : MonoBehaviour {
 	private bool puedeCaer;
 	private bool yaMovio;
 	private Vector3 posInicioCuad;
+	private Vector3 posCuadricula;
 
 	private float intervaloCaida;
+	private bool acelerandoCaida;
 
 	public int estado;
 
@@ -23,13 +25,15 @@ public class sMovimiento : MonoBehaviour {
 	private GameObject guia;
 
 	public sBloque bloqueActivo;
-	private Vector3 posLocalBloqueGuia;
-	private Vector3 posGlobalBloqueGuia;
-	
+	private int[,] bloquesGuia;
+	private float[,] bloquesLocalGuia;
+
+
 	// Use this for initialization
 	void Start () {
 
 		intervaloCaida = 0.25f;
+		acelerandoCaida = false;
 
 		estado = CAYENDO;
 
@@ -39,6 +43,8 @@ public class sMovimiento : MonoBehaviour {
 		sControl.getInstancia.finalSentado = false;
 
 		posInicioCuad = new Vector3(0.25f,6.25f,-1);
+		posCuadricula = transform.position;
+
 		cuadricula = null;
 		Cuadricular();
 
@@ -50,26 +56,60 @@ public class sMovimiento : MonoBehaviour {
 	void Update () {
 
 		//Debug.Log(puedeMover + " / " + estado + " / "+ yaMovio);
+		posCuadricula = transform.position - posInicioCuad;
+		posCuadricula.z = 0;
+		cuadricula.transform.position = posCuadricula;
 
-		cuadricula.transform.position = transform.position - posInicioCuad;
-		
+		Debug.Log(acelerandoCaida);
+
 		if(Input.GetButtonDown("Jump")){
-			if(estado != CONGELADO){
-				detenerLados();
-				detenerCaida();
-				mostrarCuadricula();
-			}
-			else{
+			if(acelerandoCaida == true)
+			{
+				chantar();
 				puedeCaer = true;
 				puedeMover = true;
 				yaMovio = false;
-				desacelerarCaida();
 				estado = CAYENDO;
 				deseleccionarBloque();
 				ocultarCuadricula();
 			}
+			else
+			{
+				if(estado != CONGELADO)
+				{
+					detenerLados();
+					detenerCaida();
+					mostrarCuadricula();
+				}
+				else
+				{
+					puedeCaer = true;
+					puedeMover = true;
+					yaMovio = false;
+					desacelerarCaida();
+					estado = CAYENDO;
+					deseleccionarBloque();
+					ocultarCuadricula();
+				}
+			}
 		}
 
+		if(Input.GetKey("s"))
+		{
+			acelerandoCaida = true;
+			if(estado != CONGELADO)
+			{
+				acelerarCaida();
+			}
+		}
+		else if(Input.GetKeyUp("s"))
+		{
+			acelerandoCaida = false;
+			if(estado != CONGELADO)
+			{
+				desacelerarCaida();
+			}
+		}
 
 		if(estado != ASENTADO && estado != CONGELADO){
 			if(puedeCaer == true){
@@ -89,14 +129,6 @@ public class sMovimiento : MonoBehaviour {
 					StartCoroutine("esperarMover",0.1f);
 				}
 			}
-
-			if(Input.GetKeyDown("s")){
-				acelerarCaida();
-				//transform.position = guia.transform.position;
-			}
-			else if(Input.GetKeyUp("s")){
-				desacelerarCaida();
-			}
 		}
 	}
 
@@ -114,6 +146,32 @@ public class sMovimiento : MonoBehaviour {
 		StopCoroutine("esperarCaer");
 		puedeCaer = false;
 		estado = CONGELADO;
+	}
+
+	void chantar()
+	{
+		Vector3 posBloque;
+		Vector3 posLocalBloque;
+		int linea;
+		int columna; 
+	
+		for(int i=0; i<transform.childCount; i++)
+		{
+			posBloque = transform.GetChild(i).position;
+			posLocalBloque = transform.GetChild(i).localPosition;
+			linea = Mathf.FloorToInt((posBloque.y + 4.75f)*2);
+			columna = Mathf.FloorToInt((posBloque.x + 2.25f)*2); 
+
+			for(int j=0; j<transform.childCount; j++)
+			{
+				if(bloquesLocalGuia[j,0] == posLocalBloque.y && bloquesLocalGuia[j,1] == posLocalBloque.x)
+				{
+					posBloque = new Vector3((bloquesGuia[j,1] * 1.0f)/2 - 2.25f, (bloquesGuia[j,0] * 1.0f)/2 - 4.75f, posBloque.z);
+					transform.GetChild(i).position = posBloque;
+					break;
+				}
+			}
+		}
 	}
 
 	void detenerLados(){
@@ -222,11 +280,23 @@ public class sMovimiento : MonoBehaviour {
 	public void removerHijos(){
 		Transform hijo;
 		BoxCollider2D col;
+
+		sBloque scrHijo;
+		sBase scrBloqueBase;
+		GameObject bloqueBase;
 		
 		for(int i = transform.childCount-1; i >= 0; i--){
 			hijo = transform.GetChild(i);
-			
-			Instantiate(pfbBase, hijo.position, Quaternion.identity);
+			scrHijo = hijo.gameObject.GetComponent("sBloque") as sBloque;
+
+			bloqueBase = Instantiate(pfbBase, hijo.position, Quaternion.identity) as GameObject;
+
+			if(scrHijo.tipo == 2)
+			{
+				scrBloqueBase = bloqueBase.GetComponent("sBase") as sBase;
+				scrBloqueBase.metalear();
+			}
+
 			Destroy(hijo.gameObject);
 		}
 	}
@@ -245,12 +315,13 @@ public class sMovimiento : MonoBehaviour {
 		eliminarCuadricula();
 		cuadricula = new GameObject("Cuadricula");
 		//Debug.Log(cuadricula.transform.position.ToString("F2")+" / "+ transform.position.ToString("F2"));
-		posInicioCuad = new Vector3(transform.position.x, transform.position.y, -1);
+		posInicioCuad = new Vector3(transform.position.x, transform.position.y, 0);
 		
 		for(int i=0; i<transform.childCount; i++){
 			for(int j=0; j<4; j++){
 				mismaPos = false;
 				posNueva = transform.GetChild(i).transform.position;
+				posNueva.z = -1;
 				switch(j){
 				case 0: posNueva.x += 0.5f; break;
 				case 1: posNueva.x -= 0.5f; break;
@@ -302,9 +373,27 @@ public class sMovimiento : MonoBehaviour {
 		}
 	}
 
+//	bool verificarBloquesUnidos()
+//	{
+//		Vector3 hijoPos;
+//		RaycastHit2D objeto;
+//
+//		for(int i=0; i<transform.childCount; i++)
+//		{
+//			hijoPos = transform.GetChild(i).transform.position;
+//			for(int j=0; j<4; j++)
+//			{
+//				//objeto = Physics2D.Linecast(hijoPos, new Vector2(hijoPos.x + valorX, hijoPos.y + valorY), 1 << LayerMask.NameToLayer("BloquesFigura"));
+//			}
+//		}
+//		return true;
+//	}
+
 	void crearGuia()
 	{
 		guia = new GameObject("Guia");
+		bloquesGuia = new int[4,2];
+		bloquesLocalGuia = new float[4,2];
 
 		for(int i=0; i<transform.childCount; i++)
 		{
@@ -318,82 +407,50 @@ public class sMovimiento : MonoBehaviour {
 
 	public void actualizarGuia()
 	{
-		Vector3 posHijo;
-		Vector3 posLocalHijo;
-		Vector3 posNueva;
-		float posY;
-
-		posY = calcularPosicionGuias();
-
-		//Debug.Log(posY);
-		Debug.Log(posGlobalBloqueGuia.ToString("F2"));
-		if(posY != Mathf.NegativeInfinity)
-		{
-			for(int i=0; i<transform.childCount; i++)
-			{
-				posHijo = transform.GetChild(i).position;
-				posLocalHijo = transform.GetChild(i).localPosition;
-
-				posNueva = posGlobalBloqueGuia + posLocalHijo - posLocalBloqueGuia;
-
-				guia.transform.GetChild(i).position = posNueva;
-			}
-		}
+		inicializarBloquesGuia();
+		posicionarBloquesGuia();
 	}
 
-	public float calcularPosicionGuias()
+	void inicializarBloquesGuia()
 	{
-		int alturaMax = 0;
-		int valorAltura;
-		Vector3 posHijo;
-
-		float posYMinHijo = Mathf.Infinity;
-		float posYHijo;
+		int linea;
+		int columna;
+		int posyMin ;
+		Vector3 posBloque;
+		Vector3 posNueva;
 
 		for(int i=0; i<transform.childCount; i++)
 		{
-			posHijo = transform.GetChild(i).position;
-			posYHijo = posHijo.y;
-			valorAltura = calcularAlturaBloqueGuia(posHijo);
+			posBloque = transform.GetChild(i).position;
+			linea = Mathf.FloorToInt((posBloque.y + 4.75f)*2);
+			columna = Mathf.FloorToInt((posBloque.x + 2.25f)*2); 
 
-			if(valorAltura == -1)
-			{
-				return Mathf.NegativeInfinity;
-			}
-
-			if(valorAltura > alturaMax)
-			{
-				alturaMax = valorAltura;
-				posLocalBloqueGuia = transform.GetChild(i).localPosition;
-				posGlobalBloqueGuia = new Vector3(posHijo.x, (alturaMax * 1.0f)/2 - 4.75f, posHijo.z);
-//				Debug.Log(posLocalBloqueGuia + " /// " + posGlobalBloqueGuia);
-			}
-			else if(valorAltura == alturaMax)
-			{
-				if(posYHijo < posYMinHijo)
-				{
-					posYMinHijo = posYHijo;
-					alturaMax = valorAltura;
-					posLocalBloqueGuia = transform.GetChild(i).localPosition;
-					posGlobalBloqueGuia = new Vector3(posHijo.x, (alturaMax * 1.0f)/2 - 4.75f, posHijo.z);
-				}
-			}
+			bloquesGuia[i,0] = linea;
+			bloquesGuia[i,1] = columna;
 		}
 
-		//Debug.Log((alturaMax * 1.0f)/2 - 4.75f);
-		return (alturaMax * 1.0f)/2 - 4.75f;
+		posyMin = calcularMaxMinColumnaGuias(false);
+
+		for(int i=0; i<transform.childCount; i++)
+		{
+			bloquesGuia[i,0] = bloquesGuia[i,0] - posyMin;
+		}
 	}
 
-	public int calcularAlturaBloqueGuia(Vector3 posBloque)
+	void posicionarBloquesGuia()
 	{
-		int linea = Mathf.FloorToInt((posBloque.y + 4.75f)*2);
-		int columna = Mathf.FloorToInt((posBloque.x + 2.25f)*2);
-		int posY = -1;
+		int indice = 0;
+		int posY;
+		int posX;
 		int max;
+		bool ocupado;
+		bool ocupadoAbajo;
+		Vector3 posNueva;
+		int linea = Mathf.FloorToInt((transform.position.y + 4.75f)*2);
 
-		if(linea > 20)
+		if(linea >  20 - calcularMaxMinColumnaGuias(true))
 		{
-			max = 20;
+			max =  20 - calcularMaxMinColumnaGuias(true);;
 		}
 		else
 		{
@@ -402,16 +459,65 @@ public class sMovimiento : MonoBehaviour {
 
 		for(int i=0; i<max; i++)
 		{
-			if(sControl.getInstancia.matrizOcupados[i,columna] == false)
+			ocupado = false;
+			ocupadoAbajo = false;
+			for(int j=0; j<transform.childCount; j++)
 			{
-				if(i-1 < 0 || sControl.getInstancia.matrizOcupados[i-1,columna] == true)
+				posY = bloquesGuia[j,0];
+				posX = bloquesGuia[j,1];
+				if(sControl.getInstancia.matrizOcupados[posY+i,posX] == true)
 				{
-					posY = i;
+					ocupado = true;
+					break;
 				}
+				else
+				{
+					if(posY+i-1 < 0 || sControl.getInstancia.matrizOcupados[posY+i-1,posX] == true)
+					{
+						ocupadoAbajo = true;
+					}
+				}
+			}
+			if(ocupado == false && ocupadoAbajo == true)
+			{
+				indice = i;
 			}
 		}
 
-		//Debug.Log(posY+ " / " + columna);
-		return posY;
+		for(int i=0; i<transform.childCount; i++)
+		{
+			bloquesGuia[i,0] = bloquesGuia[i,0] + indice;
+			bloquesLocalGuia[i,0] = transform.GetChild(i).localPosition.y;
+			bloquesLocalGuia[i,1] = transform.GetChild(i).localPosition.x;
+
+			posNueva = new Vector3((bloquesGuia[i,1] * 1.0f)/2 - 2.25f, (bloquesGuia[i,0] * 1.0f)/2 - 4.75f, transform.position.z+1);
+			guia.transform.GetChild(i).position = posNueva;
+		}
+	}
+
+	
+	int calcularMaxMinColumnaGuias(bool max)
+	{
+		int valor = bloquesGuia[0,0];
+		
+		for(int i=0; i<4; i++)
+		{
+			if(max == true)
+			{
+				if(bloquesGuia[i,0] > valor)
+				{
+					valor = bloquesGuia[i,0];
+				}
+			}
+			else
+			{
+				if(bloquesGuia[i,0] < valor)
+				{
+					valor = bloquesGuia[i,0];
+				}
+			}
+
+		}
+		return valor;
 	}
 }

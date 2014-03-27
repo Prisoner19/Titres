@@ -47,7 +47,7 @@ public class sFigura : MonoBehaviour {
 		empezarCaida();
 		bloqueActivo = null;
 		sControl.getInstancia.finalSentado = false;
-		sControl.getInstancia.numBloques = transform.childCount;
+		//sControl.getInstancia.numBloques = transform.childCount;
 	}
 
 	void Awake(){
