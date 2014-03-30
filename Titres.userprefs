@@ -1,8 +1,11 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Kongregate\KongregateAPI.js">
     <Files>
-      <File FileName="Assets\Scripts\Kongregate\KongregateAPI.js" Line="12" Column="16" />
+      <File FileName="Assets\Scripts\Mecánicas\sControl.cs" Line="72" Column="22" />
+      <File FileName="Assets\Scripts\Interfaz\Pantallas\Resultados\sResultado.cs" Line="4" Column="34" />
+      <File FileName="Assets\Scripts\Interfaz\Pantallas\Menú\sControlSupremo.cs" Line="15" Column="2" />
+      <File FileName="Assets\Scripts\Kongregate\KongregateAPI.js" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

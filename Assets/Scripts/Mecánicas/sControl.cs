@@ -72,6 +72,7 @@ public class sControl : MonoBehaviour {
 				terminarEscena();
 			}
 			if(score>=scoreMinimo){
+				Application.ExternalCall("kongregate.stats.submit","level1",score);
 				sControlSupremo.getInstancia.niveles[sControl.getInstancia.nivel] = true;
 				win = true;
 				sControlSupremo.getInstancia.metas[nivel-1,0] = true;
