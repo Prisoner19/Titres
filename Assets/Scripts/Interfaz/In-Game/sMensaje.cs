@@ -17,23 +17,10 @@ public class sMensaje : MonoBehaviour {
 	
 	}
 
-	void esperarEsconder()
+	public void esconder()
 	{
-		StartCoroutine("esperar");
-	}
-
-	IEnumerator esperar()
-	{
-		yield return new WaitForSeconds(2);
 		sControl.getInstancia.iniciar();
-		yield return new WaitForSeconds(1.5f);
-		esconder();
-	}
-
-	void esconder()
-	{
 		iTween.MoveTo(gameObject, iTween.Hash("x", -6f, "easeType", "easeInOutExpo", "delay", .2f));
 		escondido = true;
-
 	}
 }

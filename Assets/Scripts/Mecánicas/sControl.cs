@@ -40,6 +40,10 @@ public class sControl : MonoBehaviour {
 		win = false;
 		score = 0;
 		tiempoInicial = timer;
+		if(nivel > 1)
+		{
+			iniciar();
+		}
 	}
 
 	public void iniciar()
